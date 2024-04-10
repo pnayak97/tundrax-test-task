@@ -17,8 +17,8 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuard("jwt"))
-  public async getUserById(@Request() request: any): Promise<IUser> {
-    return this.userService.getUserById(request.user.id);
+  public async getUserById(@Request() { user }: UserRequest): Promise<IUser> {
+    return this.userService.getUserById(user.id);
   }
 
   @Post("favorite-cat/:id")
@@ -31,7 +31,7 @@ export class UserController {
     return this.userService.markCatAsFavorite(user.id, id);
   }
 
-  @Get("/favorite-cats")
+  @Get("favorite-cats")
   @UseGuards(AuthGuard("jwt"))
   public async getFavoriteCats(
     @Request() { user }: UserRequest

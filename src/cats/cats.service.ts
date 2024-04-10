@@ -18,46 +18,43 @@ export class CatsService {
   ) {}
 
   async create(cat: CreateCatDto): Promise<Cat> {
-    const result = await this.catRepository.save(cat);
-    if (!result) throw new HttpException("Error in creating cat", 500);
-    return result;
+    return await this.catRepository.save(cat);
   }
 
   async findAll(): Promise<Cat[]> {
-    const result = await this.catRepository.find();
-    if (!result) throw new BadRequestException("Cats not Found");
-    return result;
+    return await this.catRepository.find();
   }
 
   async deleteCatById(id: number): Promise<IResponse> {
-      const cat = await this.catRepository.findOne({
-        where: { id },
-        relations: ["users"],
-      });
-      if (!cat) {
-        throw new BadRequestException("Cat not found");
-      }
+    const cat = await this.catRepository.findOne({
+      where: { id },
+      relations: ["users"],
+    });
+    if (!cat) {
+      throw new HttpException("Cat not found", HttpStatus.NOT_FOUND);
+    }
 
-      // Get all userIds associated with this cat Id in favorites
-      const userIds = cat.users.map((user) => user.id);
+    // Get all userIds associated with this cat Id in favorites
+    const userIds = cat.users.map((user) => user.id);
 
-      // Remove associations from the join table
-      await this.catRepository
-        .createQueryBuilder()
-        .relation(Cat, "users")
-        .of(id)
-        .remove(userIds);
+    // Remove associations from the join table
+    await this.catRepository
+      .createQueryBuilder()
+      .relation(Cat, "users")
+      .of(id)
+      .remove(userIds);
 
-      await this.catRepository.delete(id);
-      return {
-        message: `Successfully delete Cat with id ${id}`,
-        status: HttpStatus.OK,
-      } as IResponse;
+    await this.catRepository.delete(id);
+
+    return {
+      message: `Successfully deleted cat with id ${id}`,
+      status: HttpStatus.OK,
+    } as IResponse;
   }
 
   async getCatById(id: number): Promise<Cat> {
     const result = await this.catRepository.findOne({ where: { id } });
-    if (!result) throw new BadRequestException("Cat not Found");
+    if (!result) throw new HttpException("Cat not found", HttpStatus.NOT_FOUND);
     return result;
   }
 
@@ -68,7 +65,7 @@ export class CatsService {
     const cat = await this.catRepository.findOne({
       where: { id },
     });
-    if (!cat) throw new BadRequestException("Cat not Found");
+    if (!cat) throw new HttpException("Cat not found", HttpStatus.NOT_FOUND);
 
     // check if custom error is thrown and cat updating properly
     Object.assign(cat, updateCatDto);

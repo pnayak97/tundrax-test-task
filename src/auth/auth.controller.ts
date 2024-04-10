@@ -7,7 +7,7 @@ import { LoginUserDto } from "../users/dto/login-user.dto";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("/register")
+  @Post("register")
   async registerUser(@Body() user: CreateUserDto) {
     return this.authService.registerUser(user);
   }
@@ -17,7 +17,7 @@ export class AuthController {
     return this.authService.registerAdminUser(user);
   }
 
-  @Post("/login")
+  @Post("login")
   async loginUser(@Body() user: LoginUserDto) {
     return this.authService.login(user);
   }
