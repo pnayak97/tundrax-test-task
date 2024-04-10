@@ -13,11 +13,11 @@ export class CatsService {
   ) {}
 
   async create(cat: CreateCatDto): Promise<Cat> {
-    return await this.catRepository.save(cat);
+    return this.catRepository.save(cat);
   }
 
   async findAll(): Promise<Cat[]> {
-    return await this.catRepository.find();
+    return this.catRepository.find();
   }
 
   async deleteCatById(id: number): Promise<IResponse> {
