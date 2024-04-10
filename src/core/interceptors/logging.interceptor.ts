@@ -11,10 +11,25 @@ import { tap } from 'rxjs/operators';
 export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     console.log('Before...');
+    
+    const request = context.switchToHttp().getRequest();
+    const { url, method, params, query, body } = request;
+    // Filter out sensitive information like password from the request body
+    const filteredBody = { ...body };
+    if (filteredBody.password) {
+      filteredBody.password = '[FILTERED]';
+    }
+    console.log('Request:', { url, method, params, query, body: filteredBody });
 
     const now = Date.now();
     return next
       .handle()
-      .pipe(tap(() => console.log(`After... ${Date.now() - now}ms`)));
+      .pipe(tap((data) => {
+        console.log('Response:', {
+          statusCode: context.switchToHttp().getResponse().statusCode,
+          data, // Log the response data
+        });
+        console.log(`After... ${Date.now() - now}ms`);
+      }));
   }
 }

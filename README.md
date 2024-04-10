@@ -66,8 +66,12 @@ $ npm run test:cov
    ```bash
    npm install
    ```
+5. **UP The Docker container:**   
+   ```bash
+    docker compose up
+   ```
 
-5. **Copy the environment file:**
+6. **Copy the environment file:**
 
    ```bash
    cp .env.example .env
@@ -79,7 +83,7 @@ $ npm run test:cov
    ```
 
 ## Postman Collection
-A file postman-collection.json exists in the folder you can import the file in the potsman
+You can find a Postman collection file named postman-collection.json in the project folder. You can import this file into Postman to access the API endpoints easily.
 
 ## Usage
 
@@ -93,13 +97,15 @@ A file postman-collection.json exists in the folder you can import the file in t
 
 - **POST /auth/register** To register new user
 - **POST /auth/login** To login registered user
-- **POST /registerAdmin** To register a new Admin (SuperAdmin accessible only)
+- **POST /registerAdmin** To register a new Admin
 
 - **GET /cats** To get details all cats
 - **POST /cats** To create new cat (Admin Accessible Only)
 - **GET /cats/:id** To get cat by Id
 - **DELETE /cats/:id** To delete cat by Id (Admin Accessible Only)
 - **PUT /cats/:id** To update cat data (Admin Accessible Only)
+
+Note: To create an admin user, you can call the POST /auth/registerAdmin endpoint
 
 ## Support
 
