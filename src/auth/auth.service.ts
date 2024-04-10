@@ -25,11 +25,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>
   ) {}
 
-  private async validatePassword(
-    user: User,
-    password: string
-  ): Promise<boolean> {
-    return await bcrypt.compare(password, user.password);
+  private validatePassword(user: User, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.password);
   }
 
   public async checkUser(

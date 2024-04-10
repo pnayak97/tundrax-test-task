@@ -9,18 +9,18 @@ import { Roles } from "src/common/decorators/roles.decorator";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("/register")
+  @Post("register")
   async registerUser(@Body() user: CreateUserDto) {
     return this.authService.registerUser(user);
   }
 
   // @Roles([UserRole.SuperAdmin])
-  @Post("/registerAdmin")
+  @Post("registerAdmin")
   async registerAdminUser(@Body() user: CreateUserDto) {
     return this.authService.registerAdminUser(user);
   }
 
-  @Post("/login")
+  @Post("login")
   async loginUser(@Body() user: LoginUserDto) {
     return this.authService.login(user);
   }
