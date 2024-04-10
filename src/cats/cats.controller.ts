@@ -7,7 +7,6 @@ import {
   UseGuards,
   Delete,
   Put,
-  NotFoundException,
 } from "@nestjs/common";
 import { Roles } from "../common/decorators/roles.decorator";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -26,7 +25,6 @@ export class CatsController {
   @Get()
   @UseGuards(AuthGuard("jwt"))
   public async findAll(): Promise<Cat[]> {
-    console.log("here-get")
     return this.catsService.findAll();
   }
 
@@ -34,7 +32,6 @@ export class CatsController {
   @Roles([UserRole.Admin, UserRole.SuperAdmin])
   @UseGuards(AuthGuard("jwt"), RolesGuard)
   public async create(@Body() createCatDto: CreateCatDto): Promise<Cat> {
-    console.log("here")
     return this.catsService.create(createCatDto);
   }
 

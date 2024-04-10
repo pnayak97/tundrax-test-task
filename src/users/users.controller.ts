@@ -10,6 +10,7 @@ import { UserService } from "./users.service";
 import { ParseIntPipe } from "../common/pipes/parse-int.pipe";
 import { AuthGuard } from "@nestjs/passport";
 import { IUser, UserRequest } from "./interface/user.interface";
+import { Cat } from "../entities/Cat.entity";
 
 @Controller("user")
 export class UserController {
@@ -35,7 +36,7 @@ export class UserController {
   @UseGuards(AuthGuard("jwt"))
   public async getFavoriteCats(
     @Request() { user }: UserRequest
-  ): Promise<IUser> {
+  ): Promise<Cat[]> {
     return this.userService.getUserFavoriteCats(user.id);
   }
 }

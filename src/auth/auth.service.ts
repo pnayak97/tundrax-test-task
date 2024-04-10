@@ -1,12 +1,11 @@
 import {
-  BadRequestException,
+  HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "../common/interfaces/jwt-payload";
 import { User } from "../entities/User.entity";
 import { DeepPartial, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -72,6 +71,7 @@ export class AuthService {
       secret,
       expiresIn: config().Constants.lifetime,
     });
+
     return {
       message: "Successfully loggedIn",
       status: HttpStatus.OK,
@@ -90,8 +90,9 @@ export class AuthService {
     const existingUser = await this.userRepository.findOne({
       where: { email },
     });
+
     if (existingUser) {
-      throw new BadRequestException("Email already exists");
+      throw new HttpException("Email already exists", HttpStatus.NOT_FOUND);
     }
 
     // Hash the password
@@ -115,8 +116,8 @@ export class AuthService {
     await this.registerUser(payload, [UserRole.Admin]);
 
     return {
-      status: HttpStatus.OK,
       message: "Successfully registered Admin",
+      status: HttpStatus.OK,
     };
   }
 }

@@ -1,5 +1,4 @@
 import { ICat } from "src/cats/interfaces/cat.interface";
-import { Request } from "express";
 
 export interface IUser {
   name: string;
@@ -8,7 +7,7 @@ export interface IUser {
   email: string;
 }
 
-export interface UserRequest extends Request {
+export interface UserRequest  {
   user: {
     id: number;
     name: string;

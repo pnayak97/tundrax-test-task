@@ -16,5 +16,5 @@ export class Cat {
   breed: string;
 
   @ManyToMany(() => User, (user) => user.favorites, { cascade: true })
-  users: User[];
+  users?: User[];
 }

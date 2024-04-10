@@ -7,10 +7,12 @@ Before you begin, ensure you have met the following requirements:
 - PostgreSQL installed (for the database)
 - docker and docker-compose installed
 
-## Installation
+## Installation and start
 
 ```bash
 $ npm install
+
+$ docker compose up
 ```
 
 ## Running the app
@@ -75,6 +77,9 @@ $ npm run test:cov
    ```bash
    npm start
    ```
+
+## Postman Collection
+A file postman-collection.json exists in the folder you can import the file in the potsman
 
 ## Usage
 
