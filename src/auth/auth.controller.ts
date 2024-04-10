@@ -9,17 +9,17 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("register")
-  async registerUser(@Body() user: CreateUserDto):Promise<IResponse> {
+  async registerUser(@Body() user: CreateUserDto): Promise<IResponse> {
     return this.authService.registerUser(user);
   }
 
   @Post("registerAdmin")
-  async registerAdminUser(@Body() user: CreateUserDto):Promise<IResponse>  {
+  async registerAdminUser(@Body() user: CreateUserDto): Promise<IResponse> {
     return this.authService.registerAdminUser(user);
   }
 
   @Post("login")
-  async loginUser(@Body() user: LoginUserDto):Promise<IResponse> {
+  async loginUser(@Body() user: LoginUserDto): Promise<IResponse> {
     return this.authService.login(user);
   }
 }

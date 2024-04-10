@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from '../auth/auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginUserDto } from '../users/dto/login-user.dto';
-import { IResponse } from 'src/common/interfaces/response';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AuthController } from "./auth.controller";
+import { AuthService } from "../auth/auth.service";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { LoginUserDto } from "../users/dto/login-user.dto";
+import { IResponse } from "src/common/interfaces/response";
 
-describe('AuthController', () => {
+describe("AuthController", () => {
   let controller: AuthController;
   let authService: AuthService;
 
@@ -28,25 +28,24 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('registerUser', () => {
-    it('should call authService.registerUser and return the result', async () => {
-      const user: CreateUserDto = {  
+  describe("registerUser", () => {
+    it("should call authService.registerUser and return the result", async () => {
+      const user: CreateUserDto = {
         email: "john18780@example.com",
-      password: "password123",
-      name: "john"
-    }
-    
+        password: "password123",
+        name: "john",
+      };
 
       const expectedResult: IResponse = {
         message: "Successfully registered user",
         status: 200,
       };
 
-      jest.spyOn(authService, 'registerUser').mockResolvedValue(expectedResult);
+      jest.spyOn(authService, "registerUser").mockResolvedValue(expectedResult);
 
       const result = await controller.registerUser(user);
 
@@ -55,18 +54,22 @@ describe('AuthController', () => {
     });
   });
 
-  describe('registerAdminUser', () => {
-    it('should call authService.registerAdminUser and return the result', async () => {
-      const user: CreateUserDto = {  email: "john18780@example.com",
-      password: "password123",
-      name: "john" };
+  describe("registerAdminUser", () => {
+    it("should call authService.registerAdminUser and return the result", async () => {
+      const user: CreateUserDto = {
+        email: "john18780@example.com",
+        password: "password123",
+        name: "john",
+      };
 
-      const expectedResult: IResponse = {  
+      const expectedResult: IResponse = {
         message: "Successfully registered Admin",
-      status: 200
-    };
+        status: 200,
+      };
 
-      jest.spyOn(authService, 'registerAdminUser').mockResolvedValue(expectedResult);
+      jest
+        .spyOn(authService, "registerAdminUser")
+        .mockResolvedValue(expectedResult);
 
       const result = await controller.registerAdminUser(user);
 
@@ -75,21 +78,21 @@ describe('AuthController', () => {
     });
   });
 
-  describe('loginUser', () => {
-    it('should call authService.login and return the result', async () => {
+  describe("loginUser", () => {
+    it("should call authService.login and return the result", async () => {
       const user: LoginUserDto = {
         email: "john18780@example.com",
         password: "password123",
-      };    
-        const expectedResult = {
-          message: "Successfully loggedIn",
-          status: 200,
-          data: {
-            accessToken:"ACCESS_TOKEN",
-          },
-        };
+      };
+      const expectedResult = {
+        message: "Successfully loggedIn",
+        status: 200,
+        data: {
+          accessToken: "ACCESS_TOKEN",
+        },
+      };
 
-      jest.spyOn(authService, 'login').mockResolvedValue(expectedResult);
+      jest.spyOn(authService, "login").mockResolvedValue(expectedResult);
 
       const result = await controller.loginUser(user);
 

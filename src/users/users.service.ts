@@ -1,4 +1,4 @@
-import {  Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/User.entity";
@@ -11,7 +11,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Cat)
-    private readonly catRepository: Repository<Cat>
+    private readonly catRepository: Repository<Cat>,
   ) {}
 
   public async getUserById(userId: number): Promise<IUser> {
@@ -19,9 +19,8 @@ export class UserService {
       select: { id: true, name: true, email: true, favorites: true },
       where: { id: userId },
     });
-   if(!result){
-
-   }
+    if (!result) {
+    }
     const { id, name, email, favorites } = result;
     return {
       id,
@@ -33,7 +32,7 @@ export class UserService {
 
   public async markCatAsFavorite(
     userId: number,
-    catId: number
+    catId: number,
   ): Promise<IUser> {
     const user = await this.findUserByIdWithFavorites(userId);
     const cat = await this.findCatById(catId);
@@ -91,7 +90,7 @@ export class UserService {
     };
   }
 
-  public async getUserFavoriteCats(userId: number): Promise< Cat[]> {
+  public async getUserFavoriteCats(userId: number): Promise<Cat[]> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ["favorites"],
@@ -101,5 +100,4 @@ export class UserService {
     }
     return user.favorites;
   }
-
 }

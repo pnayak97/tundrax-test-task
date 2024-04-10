@@ -13,7 +13,7 @@ async function bootstrap() {
     await app.listen(5000);
     console.log(`Application is running on: ${await app.getUrl()}`);
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 

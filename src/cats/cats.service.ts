@@ -1,8 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cat } from "../entities/Cat.entity";
@@ -13,7 +9,7 @@ import { IResponse } from "../common/interfaces/response";
 export class CatsService {
   constructor(
     @InjectRepository(Cat)
-    private readonly catRepository: Repository<Cat>
+    private readonly catRepository: Repository<Cat>,
   ) {}
 
   async create(cat: CreateCatDto): Promise<Cat> {
@@ -59,7 +55,7 @@ export class CatsService {
 
   async updateCatById(
     id: number,
-    updateCatDto: Partial<UpdateCatDto>
+    updateCatDto: Partial<UpdateCatDto>,
   ): Promise<Cat> {
     const cat = await this.catRepository.findOne({
       where: { id },

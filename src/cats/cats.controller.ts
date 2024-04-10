@@ -39,7 +39,7 @@ export class CatsController {
   @Get(":id")
   public async findOne(
     @Param("id", new ParseIntPipe())
-    id: number
+    id: number,
   ): Promise<Cat> {
     return this.catsService.getCatById(id);
   }
@@ -49,7 +49,7 @@ export class CatsController {
   @Delete(":id")
   async deleteCatById(
     @Param("id", new ParseIntPipe())
-    id: number
+    id: number,
   ): Promise<IResponse> {
     return this.catsService.deleteCatById(id);
   }
@@ -59,7 +59,7 @@ export class CatsController {
   @Put(":id")
   async updateCatById(
     @Param("id", new ParseIntPipe()) id: number,
-    @Body() updateCatDto: UpdateCatDto
+    @Body() updateCatDto: UpdateCatDto,
   ): Promise<Cat> {
     return this.catsService.updateCatById(id, updateCatDto);
   }

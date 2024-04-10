@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
   private validatePassword(user: User, password: string): Promise<boolean> {
@@ -30,7 +30,7 @@ export class AuthService {
 
   public async checkUser(
     id: number,
-    email: string
+    email: string,
   ): Promise<Omit<User, "password">> {
     const existingUser = await this.userRepository.findOne({
       select: {
@@ -55,14 +55,14 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new UnauthorizedException(
-        "Invalid credentials - email does not exists"
+        "Invalid credentials - email does not exists",
       );
     }
 
     const isValidPassword = await this.validatePassword(user, password);
     if (!isValidPassword) {
       throw new UnauthorizedException(
-        "Invalid credentials - password does not match"
+        "Invalid credentials - password does not match",
       );
     }
     const secret = config().keys.jwtServerSecret;
@@ -83,7 +83,7 @@ export class AuthService {
 
   public async registerUser(
     payload: CreateUserDto,
-    roles?: DeepPartial<UserRole>[]
+    roles?: DeepPartial<UserRole>[],
   ): Promise<IResponse> {
     // check if user exist already
     const { email, password, name } = payload;

@@ -27,7 +27,7 @@ export class UserController {
   public async markCatAsFavorite(
     @Param("id", new ParseIntPipe())
     id: number,
-    @Request() { user }: UserRequest
+    @Request() { user }: UserRequest,
   ): Promise<IUser> {
     return this.userService.markCatAsFavorite(user.id, id);
   }
@@ -35,7 +35,7 @@ export class UserController {
   @Get("favorite-cats")
   @UseGuards(AuthGuard("jwt"))
   public async getFavoriteCats(
-    @Request() { user }: UserRequest
+    @Request() { user }: UserRequest,
   ): Promise<Cat[]> {
     return this.userService.getUserFavoriteCats(user.id);
   }

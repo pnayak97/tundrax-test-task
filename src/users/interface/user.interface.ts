@@ -7,7 +7,7 @@ export interface IUser {
   email: string;
 }
 
-export interface UserRequest  {
+export interface UserRequest {
   user: {
     id: number;
     name: string;

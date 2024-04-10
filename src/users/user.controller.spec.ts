@@ -15,7 +15,6 @@ describe("UserController", () => {
           useValue: {
             markCatAsFavorite: jest.fn(),
             getUserFavoriteCats: jest.fn(),
-          
           },
         },
       ],
@@ -35,8 +34,8 @@ describe("UserController", () => {
       };
       jest.spyOn(userService, "markCatAsFavorite").mockResolvedValue(mockUser);
 
-      const request = { user: { id: 1,name:"John", roles:["user"]}};
-      const result = await controller.markCatAsFavorite(1, request );
+      const request = { user: { id: 1, name: "John", roles: ["user"] } };
+      const result = await controller.markCatAsFavorite(1, request);
 
       expect(result).toEqual(mockUser);
     });
@@ -49,7 +48,7 @@ describe("UserController", () => {
         .spyOn(userService, "getUserFavoriteCats")
         .mockResolvedValue(mockUser);
 
-        const request = { user: { id: 1,name:"John", roles:["user"]}};
+      const request = { user: { id: 1, name: "John", roles: ["user"] } };
       const result = await controller.getFavoriteCats(request);
 
       expect(result).toEqual(mockUser);
