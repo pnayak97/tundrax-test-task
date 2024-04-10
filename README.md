@@ -1,7 +1,11 @@
+## Prerequisites
 
-## Description
+Before you begin, ensure you have met the following requirements:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js 20.12.2 installed on your local machine
+- npm package manager installed
+- PostgreSQL installed (for the database)
+- docker and docker-compose installed
 
 ## Installation
 
@@ -13,7 +17,7 @@ $ npm install
 
 ```bash
 # development
-$ npm run start
+$ npm start
 
 # watch mode
 $ npm run start:dev
@@ -34,6 +38,63 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/Tundrax-Dex/nestjs-assignment
+   ```
+
+2. **Navigate to the project directory:**
+
+   ```bash
+   cd nestjs-assignment
+   ```
+
+3. **Use the correct Node.js version:**
+
+   ```bash
+   nvm use
+   ```
+
+4. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+5. **Copy the environment file:**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+6. **Start the server:**
+   ```bash
+   npm start
+   ```
+
+## Usage
+
+- After starting the server, you can access the API endpoints listed below:
+
+### Routes:
+
+- **POST /user/favorite-cat/:catId:** To mark a cat as favorite by cat Id
+- **GET /user/favorite-cats:** To Get all favorites marked by user
+- **GET /user** To get user details
+
+- **POST /auth/register** To register new user
+- **POST /auth/login** To login registered user
+- **POST /registerAdmin** To register a new Admin (SuperAdmin accessible only)
+
+- **GET /cats** To get details all cats
+- **POST /cats** To create new cat (Admin Accessible Only)
+- **GET /cats/:id** To get cat by Id
+- **DELETE /cats/:id** To delete cat by Id (Admin Accessible Only)
+- **PUT /cats/:id** To update cat data (Admin Accessible Only)
 
 ## Support
 

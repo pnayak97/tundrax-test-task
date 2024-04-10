@@ -1,12 +1,35 @@
-import { IsInt, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateCatDto {
+  @IsNotEmpty()
   @IsString()
-  readonly name: string;
+  name: string;
 
+  @IsNotEmpty()
   @IsInt()
-  readonly age: number;
+  age: number;
 
+  @IsNotEmpty()
   @IsString()
-  readonly breed: string;
+  breed: string;
+}
+export class UpdateCatDto {
+  @IsOptional()
+  @IsString()
+  name: string;
+
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  age?: number;
+
+  @IsOptional()
+  @IsString()
+  breed?: string;
 }
