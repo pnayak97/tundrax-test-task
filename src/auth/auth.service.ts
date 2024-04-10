@@ -14,8 +14,8 @@ import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { LoginUserDto } from "src/users/dto/login-user.dto";
 import config from "../configuration";
 import bcrypt from "bcrypt";
-import { UserRole } from "src/users/enums/user-role.enum";
-import { IResponse } from "src/common/interfaces/response";
+import { UserRole } from "../users/enums/user-role.enum";
+import { IResponse } from "../common/interfaces/response";
 
 @Injectable()
 export class AuthService {

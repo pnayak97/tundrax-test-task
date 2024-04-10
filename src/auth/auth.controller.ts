@@ -2,8 +2,6 @@ import { Controller, Body, Post } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { LoginUserDto } from "../users/dto/login-user.dto";
-import { UserRole } from "src/users/enums/user-role.enum";
-import { Roles } from "src/common/decorators/roles.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -14,7 +12,6 @@ export class AuthController {
     return this.authService.registerUser(user);
   }
 
-  // @Roles([UserRole.SuperAdmin])
   @Post("/registerAdmin")
   async registerAdminUser(@Body() user: CreateUserDto) {
     return this.authService.registerAdminUser(user);

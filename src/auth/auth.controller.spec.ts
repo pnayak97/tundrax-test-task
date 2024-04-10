@@ -1,125 +1,130 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthController } from "./auth.controller";
-import { AuthService } from "../auth/auth.service";
 import { TypeOrmModule, getRepositoryToken } from "@nestjs/typeorm";
 import { User } from "../entities/User.entity";
 import { Repository } from "typeorm";
-import { JwtService } from "@nestjs/jwt";
 import { JwtModule } from "@nestjs/jwt";
-import { ConfigModule, ConfigService } from "@nestjs/config";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { LoginUserDto } from "../users/dto/login-user.dto";
-import bcrypt from "bcrypt";
 import { AuthGuard } from "@nestjs/passport";
-import { RolesGuard } from "../common/guards/roles.guard";
 import { INestApplication } from "@nestjs/common";
 import { AuthModule } from "./auth.module";
-import { UserModule } from "../users/users.module";
+import testDbConfig from "../test/db.config";
+import supertest from "supertest";
+import { MockJwtAuthGuard } from "../test/mock.guard";
 
 let app: INestApplication;
 let repository: Repository<User>;
-let connection;
+let connection: TestingModule;
 
-class MockJwtAuthGuard {
-  canActivate(context): boolean {
-    // Mock canActivate method to return true for testing purposes
-    return true;
-  }
-}
-class MockRolesGuard {
-  canActivate(context): boolean {
-    // Mock canActivate method to return true for testing purposes
-    return true;
-  }
-}
+beforeAll(async () => {
+  connection = await Test.createTestingModule({
+    imports: [
+      AuthModule,
+      JwtModule,
+      Repository,
+      TypeOrmModule.forRoot(testDbConfig),
+    ],
+    providers: [],
+  })
+    .overrideGuard(AuthGuard("jwt"))
+    .useValue(MockJwtAuthGuard)
+    .compile();
 
-describe("AuthController (e2e)", () => {
-  let authController: AuthController;
+  repository = connection.get("UserRepository");
+  // Initialize the NestJS application
+  app = connection.createNestApplication();
+  await app.init();
+});
 
-  beforeAll(async () => {
-    connection = await Test.createTestingModule({
-      imports: [
-        AuthModule,
-        // Use the e2e_test database to run the tests
-        TypeOrmModule.forRoot({
-          type: "postgres",
-          host: "localhost",
-          port: 54320,
-          username: "test_user",
-          password: "test_password",
-          database: "test_database",
-          entities: ["./**/*.entity.ts"],
-          synchronize: true,
-        }),
-      ],
-      providers: [
-        AuthService,
-      
-        JwtService,
-        ConfigService,
-      ],
-    })
-      // .overrideGuard(AuthGuard("jwt"))
-      // .useValue(MockJwtAuthGuard)
-      // .overrideGuard(RolesGuard)
-      // .useValue(MockRolesGuard)
-      .compile();
+describe("validateUser", () => {
+  it("should register the user", async () => {
+    const registerUserDto: CreateUserDto = {
+      email: "john18780@example.com",
+      password: "password123",
+      name: "john",
+    };
 
-    repository = connection.get("UserRepository");
-    app = connection.createNestApplication();
-    await app.init();
+    const result = await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(201);
   });
 
-  it.only("should be defined", () => {
-    expect(authController).toBeDefined();
+  it("should give error if email already exist", async () => {
+    const registerUserDto: CreateUserDto = {
+      email: "john18780@example.com",
+      password: "password123",
+      name: "john",
+    };
+
+    await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(201);
+
+    const result = await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(400);
+    
+      // expect(result.body).toEqual({
+      //   message: `User Already Exists`,
+      //   statusCode: 404,
+      // });
+  });
+});
+
+describe("loginUser", () => {
+  it("should login existing user", async () => {
+    const registerUserDto: CreateUserDto = {
+      email: "john18780@example.com",
+      password: "password123",
+      name: "john",
+    };
+
+    const loginUserDto: LoginUserDto = {
+      email: "john18780@example.com",
+      password: "password123",
+    };
+
+    await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(201);
+
+    await supertest(app.getHttpServer())
+      .post(`/auth/login`)
+      .send(loginUserDto)
+      .expect(201);
   });
 
-  // describe.only('validateUser', () => {
-  //   it('should return null if user is not found', async () => {
-  //     const result = await authService.validateUser('test@example.com', 'password');
-  //     expect(result).toBeNull();
-  //   });
+  it("should give error if user not exists", async () => {
+    const loginUserDto: LoginUserDto = {
+      email: "john10@example.com",
+      password: "password123",
+    };
+    
+    const result=await supertest(app.getHttpServer())
+    .post(`/auth/login`)
+    .send(loginUserDto)
+    .expect(401);
+    
+    // expect(result.body).toEqual({
+    //     message: ` User Does Not Exists`,
+    //     statusCode: 404,
+    //   });
+});
+});
 
-  //   it('should return user if user is found and password matches', async () => {
-  //     const user = new User();
-  //     user.email = 'test@example.com';
-  //     user.password = bcrypt.hashSync('password', 10); // Assuming password is hashed
+afterEach(async () => {
+  // Close the database connection and drop the test database
+  await repository.query(`Delete from user_favorites_cat`);
+  await repository.query(`Delete from cat`);
+  await repository.query(`Delete from "user"`);
+});
 
-  //     jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
-
-  //     const result = await authService.validateUser('test@example.com', 'password');
-  //     expect(result).toEqual(user);
-  //   });
-
-  //   it('should return null if password does not match', async () => {
-  //     const user = new User();
-  //     user.email = 'test@example.com';
-  //     user.password = bcrypt.hashSync('password', 10); // Assuming password is hashed
-
-  //     jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
-
-  //     const result = await authService.validateUser('test@example.com', 'wrongpassword');
-  //     expect(result).toBeNull();
-  //   });
-  // });
-
-  describe("loginUser", () => {
-    it("should login an existing user", async () => {
-      const existingUser = await repository.save({
-        name: "John",
-        email: "john@example.com",
-        password: "password123",
-      });
-      const loginUserDto: LoginUserDto = {
-        email: "john@example.com",
-        password: "password123",
-      };
-
-      const result = await authController.loginUser(loginUserDto);
-      expect(result).toBeDefined();
-      expect(result.accessToken).toBeDefined();
-      expect(result.userDetails.name).toEqual(existingUser.name);
-      expect(result.userDetails.email).toEqual(existingUser.email);
-    });
-  });
+afterAll(async () => {
+  await connection.close();
+  await app.close();
 });

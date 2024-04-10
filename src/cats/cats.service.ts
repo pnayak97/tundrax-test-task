@@ -8,7 +8,7 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cat } from "../entities/Cat.entity";
 import { CreateCatDto, UpdateCatDto } from "./dto/create-cat.dto";
-import { IResponse } from "src/common/interfaces/response";
+import { IResponse } from "../common/interfaces/response";
 
 @Injectable()
 export class CatsService {
@@ -30,7 +30,6 @@ export class CatsService {
   }
 
   async deleteCatById(id: number): Promise<IResponse> {
-    try {
       const cat = await this.catRepository.findOne({
         where: { id },
         relations: ["users"],
@@ -49,17 +48,11 @@ export class CatsService {
         .of(id)
         .remove(userIds);
 
-      const result = await this.catRepository.delete(id);
-      if (result?.affected == 0) {
-        throw new HttpException("Error in deleting records", 500);
-      }
+      await this.catRepository.delete(id);
       return {
         message: `Successfully delete Cat with id ${id}`,
         status: HttpStatus.OK,
       } as IResponse;
-    } catch (e) {
-      throw new HttpException("Error in deleting cat records", 500);
-    }
   }
 
   async getCatById(id: number): Promise<Cat> {

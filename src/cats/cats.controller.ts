@@ -17,8 +17,8 @@ import { CreateCatDto, UpdateCatDto } from "./dto/create-cat.dto";
 // import { Cat } from "./interfaces/cat.interface";
 import { AuthGuard } from "@nestjs/passport";
 import { Cat } from "../entities/Cat.entity";
-import { IResponse } from "src/common/interfaces/response";
-import { UserRole } from "src/users/enums/user-role.enum";
+import { IResponse } from "../common/interfaces/response";
+import { UserRole } from "../users/enums/user-role.enum";
 
 @Controller("cats")
 export class CatsController {
@@ -27,6 +27,7 @@ export class CatsController {
   @Get()
   @UseGuards(AuthGuard("jwt"))
   public async findAll(): Promise<Cat[]> {
+    console.log("here-get")
     return this.catsService.findAll();
   }
 
@@ -34,6 +35,7 @@ export class CatsController {
   @Roles([UserRole.Admin, UserRole.SuperAdmin])
   @UseGuards(AuthGuard("jwt"), RolesGuard)
   public async create(@Body() createCatDto: CreateCatDto): Promise<Cat> {
+    console.log("here")
     return this.catsService.create(createCatDto);
   }
 
