@@ -19,7 +19,9 @@ export class UserService {
       select: { id: true, name: true, email: true, favorites: true },
       where: { id: userId },
     });
-
+   if(!result){
+    
+   }
     const { id, name, email, favorites } = result;
     return {
       id,

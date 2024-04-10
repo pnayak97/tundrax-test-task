@@ -15,7 +15,7 @@ import { IUser, UserRequest } from "./interface/user.interface";
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get("")
+  @Get()
   @UseGuards(AuthGuard("jwt"))
   public async getUserById(@Request() request: any): Promise<IUser> {
     return this.userService.getUserById(request.user.id);
