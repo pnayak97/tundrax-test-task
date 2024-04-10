@@ -14,7 +14,7 @@ export class AuthController {
     return this.authService.registerUser(user);
   }
 
-  @Roles([UserRole.SuperAdmin])
+  // @Roles([UserRole.SuperAdmin])
   @Post("/registerAdmin")
   async registerAdminUser(@Body() user: CreateUserDto) {
     return this.authService.registerAdminUser(user);
