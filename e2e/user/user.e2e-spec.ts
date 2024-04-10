@@ -121,15 +121,13 @@ describe("User details", () => {
 });
 
 afterEach(async () => {
-  // Close the database connection and drop the test database
   await repository.query(`Delete from user_favorites_cat`);
   await repository.query(`Delete from cat`);
   await repository.query(`Delete from "user"`);
 });
 
 afterAll(async () => {
-  // // Close the database connection and drop the test database
-
+  // Close the database connection 
   await connection.close();
   await app.close();
 });

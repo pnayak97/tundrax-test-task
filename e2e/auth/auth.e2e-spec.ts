@@ -103,21 +103,14 @@ describe("loginUser", () => {
       email: "john10@example.com",
       password: "password123",
     };
-
-    const result = await supertest(app.getHttpServer())
+ await supertest(app.getHttpServer())
       .post(`/auth/login`)
       .send(loginUserDto)
       .expect(401);
-
-    // expect(result.body).toEqual({
-    //     message: ` User Does Not Exists`,
-    //     statusCode: 404,
-    //   });
   });
 });
 
 afterEach(async () => {
-  // Close the database connection and drop the test database
   await repository.query(`Delete from user_favorites_cat`);
   await repository.query(`Delete from cat`);
   await repository.query(`Delete from "user"`);

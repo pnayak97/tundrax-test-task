@@ -188,7 +188,7 @@ describe("updateCatById", () => {
 });
 
 afterAll(async () => {
-  // Close the database connection and drop the test database
+  // Close the database connection
   await repository.query(`Delete from user_favorites_cat`);
   await repository.query(`Delete from cat`);
   await connection.close();

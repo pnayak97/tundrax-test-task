@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/User.entity";
@@ -19,8 +24,11 @@ export class UserService {
       select: { id: true, name: true, email: true, favorites: true },
       where: { id: userId },
     });
+
     if (!result) {
+      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
     }
+
     const { id, name, email, favorites } = result;
     return {
       id,
