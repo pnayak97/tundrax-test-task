@@ -6,3 +6,10 @@ export interface IResponse {
   message: string;
   status: number;
 }
+
+export interface IFilterResponse {
+  timestamp: string;
+  path: string;
+  message?: string[] | string;
+  statusCode: number;
+}
