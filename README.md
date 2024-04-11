@@ -4,28 +4,14 @@ Before you begin, ensure you have met the following requirements:
 
 - Node.js 20.12.2 installed on your local machine
 - npm package manager installed
-- PostgreSQL installed (for the database)
 - docker and docker-compose installed
 
 ## Installation and start
 
 ```bash
 $ npm install
-
+$ docker compose build
 $ docker compose up
-```
-
-## Running the app
-
-```bash
-# development
-$ npm start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
 ## Test
@@ -55,31 +41,9 @@ $ npm run test:cov
    cd nestjs-assignment
    ```
 
-3. **Use the correct Node.js version:**
-
-   ```bash
-   nvm use
-   ```
-
-4. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-5. **UP The Docker container:**   
+3. **Run the app using Docker:**   
    ```bash
     docker compose up
-   ```
-
-6. **Copy the environment file:**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-6. **Start the server:**
-   ```bash
-   npm start
    ```
 
 ## Postman Collection
