@@ -6,13 +6,22 @@ Before you begin, ensure you have met the following requirements:
 - npm package manager installed
 - docker and docker-compose installed
 
-## Installation and start
+## Installation
 
-```bash
-$ npm install
-$ docker compose build
-$ docker compose up
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Tundrax-Dex/nestjs-assignment
+   ```
+
+2. **Navigate to the project directory:**
+   ```bash
+   cd nestjs-assignment
+   ```
+
+3. **Run the app using Docker:**   
+   ```bash
+    docker compose-up
+   ```
 
 ## Test
 
@@ -23,45 +32,27 @@ $ npm run test
 # e2e tests
 $ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
 ```
 
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Tundrax-Dex/nestjs-assignment
-   ```
-
-2. **Navigate to the project directory:**
-
-   ```bash
-   cd nestjs-assignment
-   ```
-
-3. **Run the app using Docker:**   
-   ```bash
-    docker compose up
-   ```
-
 ## Postman Collection
-You can find a Postman collection file named postman-collection.json in the project folder. You can import this file into Postman to access the API endpoints easily.
+You can find a Postman collection file named tundrax-test-task.postman_collection.json in the project folder. You can import this file into Postman to access the API endpoints easily.
 
 ## Usage
 
 - After starting the server, you can access the API endpoints listed below:
 
 ### Routes:
-
+**User Routes**
 - **POST /user/favorite-cat/:catId:** To mark a cat as favorite by cat Id
 - **GET /user/favorite-cats:** To Get all favorites marked by user
 - **GET /user** To get user details
 
+**Auth Routes**
 - **POST /auth/register** To register new user
 - **POST /auth/login** To login registered user
 - **POST /registerAdmin** To register a new Admin
 
+**Cats Routes**
 - **GET /cats** To get details all cats
 - **POST /cats** To create new cat (Admin Accessible Only)
 - **GET /cats/:id** To get cat by Id
