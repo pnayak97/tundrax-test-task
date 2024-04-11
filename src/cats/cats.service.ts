@@ -62,7 +62,6 @@ export class CatsService {
     });
     if (!cat) throw new HttpException("Cat not found", HttpStatus.NOT_FOUND);
 
-    // check if custom error is thrown and cat updating properly
     Object.assign(cat, updateCatDto);
     await this.catRepository.save(cat);
     return cat;

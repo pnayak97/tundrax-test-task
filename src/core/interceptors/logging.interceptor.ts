@@ -26,7 +26,6 @@ export class LoggingInterceptor implements NestInterceptor {
       tap((data) => {
         console.log("Response:", {
           statusCode: context.switchToHttp().getResponse().statusCode,
-          data, // Log the response data
         });
         console.log(`After... ${Date.now() - now}ms`);
       }),
