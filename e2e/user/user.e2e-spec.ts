@@ -12,6 +12,7 @@ import testDbConfig from "../../src/test/db.config";
 import { UserModule } from "../../src/users/users.module";
 import { CreateUserDto } from "../../src/users/dto/create-user.dto";
 import { LoginUserDto } from "../../src/users/dto/login-user.dto";
+import { testEmail, testPassword, testName } from "../../src/test/constants";
 
 let app: INestApplication;
 let repository: Repository<Cat>;
@@ -37,14 +38,12 @@ beforeAll(async () => {
 });
 
 describe("Mark cat as favorite", () => {
-  const email = "john1780@example.com";
-  const password = "password123";
- 
+
   it("should mark cat as favorite", async () => {
     const registerUserDto: CreateUserDto = {
-      email,
-      password,
-      name: "john",
+      email:testEmail,
+      password:testPassword,
+      name:testName,
     };
 
     await supertest(app.getHttpServer())
@@ -53,8 +52,8 @@ describe("Mark cat as favorite", () => {
       .expect(201);
 
     const loginUserDto: LoginUserDto = {
-      email,
-      password,
+      email:testEmail,
+      password:testPassword,
     };
 
     const responseLogin = await supertest(app.getHttpServer())
@@ -86,14 +85,11 @@ describe("Mark cat as favorite", () => {
 
 
 describe("User details", () => {
-  const email = "john1780@example.com";
-  const password = "password123";
- 
   it("should get user details", async () => {
     const registerUserDto: CreateUserDto = {
-      email,
-      password,
-      name: "john",
+      email:testEmail,
+      password:testPassword,
+      name:testName,
     };
 
     await supertest(app.getHttpServer())
@@ -102,8 +98,8 @@ describe("User details", () => {
       .expect(201);
 
     const loginUserDto: LoginUserDto = {
-      email,
-      password,
+      email:testEmail,
+      password:testPassword,
     };
 
     const responseLogin = await supertest(app.getHttpServer())

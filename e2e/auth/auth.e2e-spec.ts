@@ -11,7 +11,7 @@ import testDbConfig from "../../src/test/db.config";
 import { MockJwtAuthGuard } from "../../src/test/mock.guard";
 import { CreateUserDto } from "../../src/users/dto/create-user.dto";
 import { LoginUserDto } from "../../src/users/dto/login-user.dto";
-
+import { testEmail, testPassword, testName } from "../../src/test/constants";
 let app: INestApplication;
 let repository: Repository<User>;
 let connection: TestingModule;
@@ -39,9 +39,9 @@ beforeAll(async () => {
 describe("validateUser", () => {
   it("should register the user", async () => {
     const registerUserDto: CreateUserDto = {
-      email: "john18780@example.com",
-      password: "password123",
-      name: "john",
+      email: testEmail,
+      password:testPassword,
+      name: testName,
     };
 
     await supertest(app.getHttpServer())
@@ -52,9 +52,9 @@ describe("validateUser", () => {
 
   it("should give error if email already exist", async () => {
     const registerUserDto: CreateUserDto = {
-      email: "john18780@example.com",
-      password: "password123",
-      name: "john",
+      email: testEmail,
+      password:testPassword,
+      name: testName,
     };
 
     await supertest(app.getHttpServer())
@@ -77,14 +77,14 @@ describe("validateUser", () => {
 describe("loginUser", () => {
   it("should login existing user", async () => {
     const registerUserDto: CreateUserDto = {
-      email: "john18780@example.com",
-      password: "password123",
-      name: "john",
+      email: testEmail,
+      password:testPassword,
+      name: testName,
     };
 
     const loginUserDto: LoginUserDto = {
-      email: "john18780@example.com",
-      password: "password123",
+      email: testEmail,
+      password:testPassword,
     };
 
     await supertest(app.getHttpServer())
@@ -101,9 +101,10 @@ describe("loginUser", () => {
   it("should give error if user not exists", async () => {
     const loginUserDto: LoginUserDto = {
       email: "john10@example.com",
-      password: "password123",
+      password:testPassword,
     };
- await supertest(app.getHttpServer())
+    
+    await supertest(app.getHttpServer())
       .post(`/auth/login`)
       .send(loginUserDto)
       .expect(401);
