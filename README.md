@@ -30,7 +30,6 @@ $ npm run test:cov
 ## Installation
 
 1. **Clone the repository:**
-
    ```bash
    git clone https://github.com/Tundrax-Dex/nestjs-assignment
    ```

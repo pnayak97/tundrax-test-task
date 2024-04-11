@@ -98,16 +98,60 @@ describe("loginUser", () => {
       .expect(201);
   });
 
-  it("should give error if user not exists", async () => {
+  it("should give error if user does not exists", async () => {
+    const registerUserDto: CreateUserDto = {
+      email: testEmail,
+      password:testPassword,
+      name: testName,
+    };
+    await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(201);
+
     const loginUserDto: LoginUserDto = {
       email: "john10@example.com",
       password:testPassword,
     };
     
-    await supertest(app.getHttpServer())
+    const loginRespone=await supertest(app.getHttpServer())
       .post(`/auth/login`)
       .send(loginUserDto)
       .expect(401);
+     
+      expect(loginRespone.body).toEqual({
+        error: "Unauthorized",
+        message: "Invalid credentials - email does not exists",
+        statusCode: 401,
+      });
+  });
+
+  it("should give error if password is wrong", async () => {
+    const registerUserDto: CreateUserDto = {
+      email: testEmail,
+      password:testPassword,
+      name: testName,
+    };
+    await supertest(app.getHttpServer())
+      .post("/auth/register")
+      .send(registerUserDto)
+      .expect(201);
+
+    const loginUserDto: LoginUserDto = {
+      email: testEmail,
+      password:"wrongPassword",
+    };
+    
+    const loginRespone=await supertest(app.getHttpServer())
+      .post(`/auth/login`)
+      .send(loginUserDto)
+      .expect(401);
+     
+      expect(loginRespone.body).toEqual({
+        message: "Invalid credentials - password does not match",
+        statusCode: 401,
+        error: "Unauthorized"
+      });
   });
 });
 
