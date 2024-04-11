@@ -28,7 +28,7 @@ export class AuthService {
     return bcrypt.compare(password, user.password);
   }
 
-  public async checkUser(
+  public async findUser(
     id: number,
     email: string,
   ): Promise<Omit<User, "password">> {

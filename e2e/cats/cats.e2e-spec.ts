@@ -173,7 +173,7 @@ describe("updateCatById", () => {
   });
 
   it("should give error if the cat does not exist", async () => {
-    const catId = 100;
+    const catId = 1000;
     const updateCatDto = {
       name: "Whiskers",
       age: 4,
