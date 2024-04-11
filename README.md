@@ -4,97 +4,66 @@ Before you begin, ensure you have met the following requirements:
 
 - Node.js 20.12.2 installed on your local machine
 - npm package manager installed
-- PostgreSQL installed (for the database)
 - docker and docker-compose installed
 
 ## Installation
 
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Installation
-
 1. **Clone the repository:**
-
    ```bash
    git clone https://github.com/Tundrax-Dex/nestjs-assignment
    ```
 
 2. **Navigate to the project directory:**
-
    ```bash
    cd nestjs-assignment
    ```
 
-3. **Use the correct Node.js version:**
-
+3. **Run the app using Docker:**   
    ```bash
-   nvm use
+    docker-compose build
+    docker compose-up
    ```
 
-4. **Install dependencies:**
+## Test
 
-   ```bash
-   npm install
-   ```
+```bash
+# build command 
+$ docker-compose -f ./docker-compose-test.yml build
 
-5. **Copy the environment file:**
+# unit tests
+$ docker-compose -f ./docker-compose-test.yml run unit_test
 
-   ```bash
-   cp .env.example .env
-   ```
+# e2e tests
+$ docker-compose -f ./docker-compose-test.yml run e2e_test
 
-6. **Start the server:**
-   ```bash
-   npm start
-   ```
+```
+
+## Postman Collection
+You can find a Postman collection file named tundrax-test-task.postman_collection.json in the project folder. You can import this file into Postman to access the API endpoints easily.
 
 ## Usage
 
 - After starting the server, you can access the API endpoints listed below:
 
 ### Routes:
-
+**User Routes**
 - **POST /user/favorite-cat/:catId:** To mark a cat as favorite by cat Id
 - **GET /user/favorite-cats:** To Get all favorites marked by user
 - **GET /user** To get user details
 
+**Auth Routes**
 - **POST /auth/register** To register new user
 - **POST /auth/login** To login registered user
-- **POST /registerAdmin** To register a new Admin (SuperAdmin accessible only)
+- **POST /registerAdmin** To register a new Admin
 
+**Cats Routes**
 - **GET /cats** To get details all cats
 - **POST /cats** To create new cat (Admin Accessible Only)
 - **GET /cats/:id** To get cat by Id
 - **DELETE /cats/:id** To delete cat by Id (Admin Accessible Only)
 - **PUT /cats/:id** To update cat data (Admin Accessible Only)
+
+Note: To create an admin user, you can call the POST /auth/registerAdmin endpoint
 
 ## Support
 

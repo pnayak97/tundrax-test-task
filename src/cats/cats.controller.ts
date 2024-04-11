@@ -7,18 +7,16 @@ import {
   UseGuards,
   Delete,
   Put,
-  NotFoundException,
 } from "@nestjs/common";
 import { Roles } from "../common/decorators/roles.decorator";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { ParseIntPipe } from "../common/pipes/parse-int.pipe";
 import { CatsService } from "./cats.service";
 import { CreateCatDto, UpdateCatDto } from "./dto/create-cat.dto";
-// import { Cat } from "./interfaces/cat.interface";
 import { AuthGuard } from "@nestjs/passport";
 import { Cat } from "../entities/Cat.entity";
-import { IResponse } from "src/common/interfaces/response";
-import { UserRole } from "src/users/enums/user-role.enum";
+import { IResponse } from "../common/interfaces/response";
+import { UserRole } from "../users/enums/user-role.enum";
 
 @Controller("cats")
 export class CatsController {
@@ -41,7 +39,7 @@ export class CatsController {
   @Get(":id")
   public async findOne(
     @Param("id", new ParseIntPipe())
-    id: number
+    id: number,
   ): Promise<Cat> {
     return this.catsService.getCatById(id);
   }
@@ -51,7 +49,7 @@ export class CatsController {
   @Delete(":id")
   async deleteCatById(
     @Param("id", new ParseIntPipe())
-    id: number
+    id: number,
   ): Promise<IResponse> {
     return this.catsService.deleteCatById(id);
   }
@@ -61,7 +59,7 @@ export class CatsController {
   @Put(":id")
   async updateCatById(
     @Param("id", new ParseIntPipe()) id: number,
-    @Body() updateCatDto: UpdateCatDto
+    @Body() updateCatDto: UpdateCatDto,
   ): Promise<Cat> {
     return this.catsService.updateCatById(id, updateCatDto);
   }

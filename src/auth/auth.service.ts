@@ -1,44 +1,36 @@
 import {
-  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "../common/interfaces/jwt-payload";
 import { User } from "../entities/User.entity";
-import { Repository } from "typeorm";
+import { DeepPartial, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { LoginUserDto } from "src/users/dto/login-user.dto";
 import config from "../configuration";
 import bcrypt from "bcrypt";
-import { UserRole } from "src/users/enums/user-role.enum";
-import { IResponse } from "src/common/interfaces/response";
+import { UserRole } from "../users/enums/user-role.enum";
+import { IResponse } from "../common/interfaces/response";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  private async findUser(email: string, password: string) {
-    //TO ADD select
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-    if (existingUser && bcrypt.compareSync(password, existingUser.password)) {
-      return existingUser;
-    }
-    return null;
+  private validatePassword(user: User, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.password);
   }
 
-  public async checkUser(
+  public async findUser(
     id: number,
-    email: string
+    email: string,
   ): Promise<Omit<User, "password">> {
     const existingUser = await this.userRepository.findOne({
       select: {
@@ -51,114 +43,81 @@ export class AuthService {
     });
 
     if (!existingUser) {
-      throw new NotFoundException("User Does Not Exist");
+      throw new NotFoundException("User does not exists");
     }
 
     return existingUser;
   }
 
-  private async createToken(user: User) {
-    const payload: JwtPayload = {
-      email: user.email,
-      id: user.id,
-    };
-    const secret = config().keys.jwtServerSecret;
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        secret,
-        expiresIn: config().Constants.lifetime,
-      }),
-    };
-  }
-
-  // generate encrypted password
-  public encryptPassword(password: string): string {
-    const saltRounds = 10;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    return hashedPassword;
-  }
-
-  public async login(payload: LoginUserDto) :Promise<IResponse>{
+  public async login(payload: LoginUserDto): Promise<IResponse> {
     const { email, password } = payload;
-    // check if user exist already
-    const user = await this.findUser(email, password);
+    // check if user email exist already
+    const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException("User Does Not Exist");
+      throw new UnauthorizedException(
+        "Invalid credentials - email does not exists",
+      );
     }
 
-    const accessToken = await this.createToken(user);
-    const { name, email: userEmail } = user;
-    return {
-      message:"Successfully loggedIn",
-      status:HttpStatus.OK,
-      data:{
-      ...accessToken,
-      userDetails: {
-        name,
-        email: userEmail,
-      },
+    const isValidPassword = await this.validatePassword(user, password);
+    if (!isValidPassword) {
+      throw new UnauthorizedException(
+        "Invalid credentials - password does not match",
+      );
     }
+    const secret = config().keys.jwtServerSecret;
+
+    const accessToken = this.jwtService.sign(payload, {
+      secret,
+      expiresIn: config().Constants.lifetime,
+    });
+
+    return {
+      message: "Successfully loggedIn",
+      status: HttpStatus.OK,
+      data: {
+        accessToken,
+      },
     };
   }
 
-  public async registerUser(payload: CreateUserDto): Promise<IResponse> {
+  public async registerUser(
+    payload: CreateUserDto,
+    roles?: DeepPartial<UserRole>[],
+  ): Promise<IResponse> {
     // check if user exist already
     const { email, password, name } = payload;
-    const userExists = await this.findUser(email, password);
-    if (userExists) {
-      throw new BadRequestException("Can not register user already exists");
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new HttpException("Email already exists", HttpStatus.NOT_FOUND);
     }
 
-    // register new user
-    const encryptedPassword = this.encryptPassword(password);
+    // Hash the password
+    const encryptedPassword = bcrypt.hashSync(password, 10);
     const newUser = {
       name,
       password: encryptedPassword,
       email,
+      roles: roles && roles.length > 0 ? roles : [UserRole.User],
     };
 
-    const user = await this.userRepository.save(newUser);
-    if (!user)
-      throw new HttpException(
-        "Error in updating user records",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    const { name: userName, email: userEmail } = user;
+    await this.userRepository.save(newUser);
+
     return {
       message: "Successfully registered user",
       status: HttpStatus.OK,
-      data: {
-        name: userName,
-        email: userEmail,
-      },
     };
   }
 
   public async registerAdminUser(payload: CreateUserDto): Promise<IResponse> {
-    // check if user exist already
-    const { email, password, name } = payload;
-    const userExists = await this.findUser(email, password);
-    if (userExists) {
-      throw new BadRequestException("Can not register user already exists");
-    }
+    await this.registerUser(payload, [UserRole.Admin]);
 
-    // register new user
-    const encryptedPassword = this.encryptPassword(password);
-    const newUser = {
-      name,
-      password: encryptedPassword,
-      email,
-      roles: [UserRole.Admin],
-    };
-    const user = await this.userRepository.save(newUser);
-    const { name: userName, email: userEmail } = user;
     return {
-      status: HttpStatus.OK,
       message: "Successfully registered Admin",
-      data: {
-        name: userName,
-        email: userEmail,
-      },
+      status: HttpStatus.OK,
     };
   }
 }

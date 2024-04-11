@@ -17,9 +17,9 @@ export class ErrorsInterceptor implements NestInterceptor {
       .pipe(
         catchError(() =>
           throwError(
-            () => new HttpException("New message", HttpStatus.BAD_GATEWAY)
-          )
-        )
+            () => new HttpException("New message", HttpStatus.BAD_GATEWAY),
+          ),
+        ),
       );
   }
 }

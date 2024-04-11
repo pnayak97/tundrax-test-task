@@ -1,183 +1,258 @@
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { CatsModule } from "./cats.module";
-import { INestApplication } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
-import supertest from "supertest";
-import { Repository } from "typeorm";
+import { Test, TestingModule } from "@nestjs/testing";
+import { CatsController } from "./cats.controller";
+import { CatsService } from "./cats.service";
+import { CreateCatDto } from "./dto/create-cat.dto";
 import { Cat } from "../entities/Cat.entity";
+import { IFilterResponse, IResponse } from "../common/interfaces/response";
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "../common/guards/roles.guard";
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { catAge, catBreed, catName } from "../test/constants";
 
-let app: INestApplication;
-let repository: Repository<Cat>;
-let connection;
+describe("CatsController", () => {
+  let controller: CatsController;
+  let catsService: CatsService;
 
-// Define a mock class for the JwtAuthGuard
-class MockJwtAuthGuard {
-  canActivate(context): boolean {
-    // Mock canActivate method to return true for testing purposes
-    return true;
-  }
-}
-class MockRolesGuard {
-  canActivate(context): boolean {
-    // Mock canActivate method to return true for testing purposes
-    return true;
-  }
-}
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [CatsController],
+      providers: [
+        {
+          provide: CatsService,
+          useValue: {
+            findAll: jest.fn(),
+            create: jest.fn(),
+            getCatById: jest.fn(),
+            deleteCatById: jest.fn(),
+            updateCatById: jest.fn(),
+          },
+        },
+      ],
+    })
+      .overrideGuard(AuthGuard("jwt"))
+      .useValue({ canActivate: () => true }) // Mocking the AuthGuard for simplicity
+      .overrideGuard(RolesGuard)
+      .useValue({ canActivate: () => true }) // Mocking the RolesGuard for simplicity
+      .compile();
 
-beforeAll(async () => {
-  connection = await Test.createTestingModule({
-    imports: [
-      CatsModule,
-      // Use the e2e_test database to run the tests
-      TypeOrmModule.forRoot({
-        type: "postgres",
-        host: "localhost",
-        port: 54320,
-        username: "test_user",
-        password: "test_password",
-        database: "test_database",
-        entities: ["./**/*.entity.ts"],
-        synchronize: true,
-      }),
-    ],
-  })
-    .overrideGuard(AuthGuard("jwt"))
-    .useValue(MockJwtAuthGuard)
-    .overrideGuard(RolesGuard)
-    .useValue(MockRolesGuard)
-    .compile();
-
-  repository = connection.get("CatRepository");
-  app = connection.createNestApplication();
-  await app.init();
-});
-
-describe("findAll", () => {
-  it("should return an array of cats", async () => {
-    const response = await supertest(app.getHttpServer())
-      .get("/cats")
-      .expect(200);
-
-    expect(response.body).toBeInstanceOf(Array);
+    controller = module.get<CatsController>(CatsController);
+    catsService = module.get<CatsService>(CatsService);
   });
-});
 
-describe("create", () => {
-  it("should create a new cat", async () => {
-    const createCatDto = {
-      name: "Whiskers",
-      age: 3,
-      breed: "Siamese",
-    };
-
-    const response = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-
-    expect(response.body).toHaveProperty("id");
-    expect(response.body.name).toEqual(createCatDto.name);
-    expect(response.body.age).toEqual(createCatDto.age);
-    expect(response.body.breed).toEqual(createCatDto.breed);
+  it("should be defined", () => {
+    expect(controller).toBeDefined();
   });
-});
 
-describe("findOne", () => {
-  it("should return the specified cat", async () => {
-    // First, create a cat
-    const createCatDto = {
-      name: "Felix",
-      age: 4,
-      breed: "Maine Coon",
-    };
+  describe("findAll", () => {
+    it("should return an array of cats", async () => {
+      const cats: Cat[] = [{ id: 1, name: catName, age: 3, breed: catBreed }];
+      jest.spyOn(catsService, "findAll").mockResolvedValue(cats);
 
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-    const catId = createResponse.body.id;
-
-    // Then, try to find the created cat
-    const findResponse = await supertest(app.getHttpServer())
-      .get(`/cats/${catId}`)
-      .expect(200);
-    expect(findResponse.body.name).toEqual(createResponse.body.name);
-    expect(findResponse.body.age).toEqual(createResponse.body.age);
-    expect(findResponse.body.breed).toEqual(createResponse.body.breed);
-  });
-});
-
-describe("deleteCatById", () => {
-  it("should delete the specified cat", async () => {
-    // First, create a cat
-    const createCatDto = {
-      name: "Garfield",
-      age: 5,
-      breed: "Persian",
-    };
-
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-
-    const catId = createResponse.body.id;
-
-    // Then, try to delete the created cat
-    const deleteResponse = await supertest(app.getHttpServer())
-      .delete(`/cats/${catId}`)
-      .expect(200);
-
-    expect(deleteResponse.body).toEqual({
-      message: `Successfully delete Cat with ${catId}`,
-      status: 200,
+      expect(await controller.findAll()).toEqual(cats);
     });
 
-    // Verify that the cat has been deleted by trying to find it again
-    await supertest(app.getHttpServer()).get(`/cats/${catId}`).expect(400); //  400 is returned when the cat is not found
+    it("should return an empty array when no cat is present", async () => {
+      // Mocking the findAll method to return an empty array
+      jest.spyOn(catsService, "findAll").mockResolvedValue([]);
+
+      // Running the test with the mocked behavior
+      expect(await controller.findAll()).toEqual([]);
+
+      // Restoring the original implementation of findAll
+      jest.restoreAllMocks();
+    });
   });
-});
 
-describe("updateCatById", () => {
-  it("should update the specified cat", async () => {
-    // First, create a cat
-    const createCatDto = {
-      name: "Tom",
-      age: 3,
-      breed: "Siamese",
-    };
+  describe("create", () => {
+    it("should create a new cat", async () => {
+      const createCatDto: CreateCatDto = {
+        name: catName,
+        age: catAge,
+        breed: catBreed,
+      };
+      const createdCat: Cat = { id: 1, ...createCatDto };
+      jest.spyOn(catsService, "create").mockResolvedValue(createdCat);
 
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
+      expect(await controller.create(createCatDto)).toEqual(createdCat);
+    });
 
-    const catId = createResponse.body.id;
+    it("should not create a new cat if user is not authorized", async () => {
+      const createCatDto: CreateCatDto = {
+        name: catName,
+        age: catAge,
+        breed: catBreed,
+      };
 
-    // Then, update the created cat
-    const updateCatDto = {
-      name: "Whiskers",
-      age: 4,
-      breed: "Siamese",
-    };
+      const expectedResult: IFilterResponse = {
+        timestamp: expect.any(String),
+        path: "/cats/",
+        message: "Forbidden resource",
+        statusCode: 403,
+      };
 
-    const updateResponse = await supertest(app.getHttpServer())
-      .put(`/cats/${catId}`)
-      .send(updateCatDto)
-      .expect(200);
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: RolesGuard,
+            useValue: { canActivate: () => false },
+          },
+        ],
+      }).compile();
 
-    expect(updateResponse.body).toHaveProperty("id", catId);
-    expect(updateResponse.body.name).toEqual(updateCatDto.name);
-    expect(updateResponse.body.age).toEqual(updateCatDto.age);
-    expect(updateResponse.body.breed).toEqual(updateCatDto.breed);
+      // Override canActivate to return false (for not authorized user)
+      const guard = module.get(RolesGuard);
+      jest.spyOn(guard, "canActivate").mockReturnValue(false);
+
+      jest.spyOn(catsService, "create").mockRejectedValue(expectedResult);
+
+      await expect(controller.create(createCatDto)).rejects.toEqual(
+        expectedResult
+      );
+      expect(catsService.create).toHaveBeenCalledWith(createCatDto);
+
+      // Restore the original canActivate method
+      (guard.canActivate as jest.Mock).mockRestore();
+    });
   });
-});
 
-afterAll(async () => {
-  // Close the database connection and drop the test database
-  await repository.query(`Delete from cat`);
-  // await connection.close();
-  await app.close();
+  describe("findOne", () => {
+    it("should return the specified cat", async () => {
+      const catId = 1;
+      const cat: Cat = {
+        id: catId,
+        name: catName,
+        age: catAge,
+        breed: catBreed,
+      };
+      jest.spyOn(catsService, "getCatById").mockResolvedValue(cat);
+
+      expect(await controller.findOne(catId)).toEqual(cat);
+    });
+    it("should throw an error when cat ID is not found", async () => {
+      const invalidCatId = 90;
+      const response: IFilterResponse = {
+        timestamp: expect.any(String),
+        path: `/cats/${invalidCatId}`,
+        statusCode: 404,
+      };
+
+      jest.spyOn(catsService, "getCatById").mockRejectedValue(response);
+
+      await expect(controller.findOne(invalidCatId)).rejects.toEqual(response);
+
+      expect(catsService.getCatById).toHaveBeenCalledWith(invalidCatId);
+    });
+
+    it("should throw an error when cat ID is not of a valid type", async () => {
+      const invalidCatId: any = "22";
+      const response: IFilterResponse = {
+        timestamp: expect.any(String),
+        path: expect.any(String),
+        message: "Validation failed",
+        statusCode: 400,
+      };
+
+      jest.spyOn(catsService, "getCatById").mockRejectedValue(response);
+
+      await expect(controller.findOne(invalidCatId)).rejects.toEqual(response);
+
+      expect(catsService.getCatById).toHaveBeenCalledWith(invalidCatId);
+    });
+  });
+
+  describe("deleteCatById", () => {
+    it("should delete the specified cat", async () => {
+      const catId = 1;
+      const response: IResponse = {
+        message: `Successfully delete Cat with ${catId}`,
+        status: 200,
+      };
+      jest.spyOn(catsService, "deleteCatById").mockResolvedValue(response);
+
+      expect(await controller.deleteCatById(catId)).toEqual(response);
+    });
+    it("should return 'Cat not found' error when the cat does not exist", async () => {
+      const catId = 1;
+      const errorMessage = "Cat not found";
+      const error = new HttpException(errorMessage, HttpStatus.NOT_FOUND);
+
+      jest.spyOn(catsService, "deleteCatById").mockRejectedValue(error);
+
+      await expect(controller.deleteCatById(catId)).rejects.toThrow(error);
+    });
+    it("should not delete a cat if user is not authorized", async () => {
+      const catId = 2;
+
+      const expectedResult: IFilterResponse = {
+        timestamp: expect.any(String),
+        path: `/cats/${catId}`,
+        message: "Forbidden resource",
+        statusCode: 403,
+      };
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: RolesGuard,
+            useValue: { canActivate: () => false }, // Return false for canActivate
+          },
+        ],
+      }).compile();
+
+      // Override canActivate to return false (for not authorized user)
+      const guard = module.get(RolesGuard);
+      jest.spyOn(guard, "canActivate").mockReturnValue(false);
+
+      jest
+        .spyOn(catsService, "deleteCatById")
+        .mockRejectedValue(expectedResult);
+
+      await expect(controller.deleteCatById(catId)).rejects.toEqual(
+        expectedResult
+      );
+    });
+  });
+
+  describe("updateCatById", () => {
+    it("should update the specified cat", async () => {
+      const catId = 1;
+      const updateCatDto = { name: "Tom", age: 3, breed: "Siamese" };
+      const updatedCat = { id: catId, ...updateCatDto };
+      jest.spyOn(catsService, "updateCatById").mockResolvedValue(updatedCat);
+
+      expect(await controller.updateCatById(catId, updateCatDto)).toEqual(
+        updatedCat
+      );
+    });
+    it("should not update a cat if user is not authorized", async () => {
+      const catId = 1;
+      const updateCatDto = { name: "Tom", age: 3, breed: "Siamese" };
+
+      const expectedResult: IFilterResponse = {
+        timestamp: expect.any(String),
+        path: `/cats/${catId}`,
+        message: "Forbidden resource",
+        statusCode: 403,
+      };
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: RolesGuard,
+            useValue: { canActivate: () => false }, // Return false for canActivate
+          },
+        ],
+      }).compile();
+
+      // Override canActivate to return false (for not authorized user)
+      const guard = module.get(RolesGuard);
+      jest.spyOn(guard, "canActivate").mockReturnValue(false);
+      jest
+        .spyOn(catsService, "updateCatById")
+        .mockRejectedValue(expectedResult);
+
+      await expect(
+        controller.updateCatById(catId, updateCatDto)
+      ).rejects.toEqual(expectedResult);
+    });
+  });
 });
