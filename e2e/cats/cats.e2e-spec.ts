@@ -9,10 +9,14 @@ import { RolesGuard } from "../../src/common/guards/roles.guard";
 import { Cat } from "../../src/entities/Cat.entity";
 import testDbConfig from "../../src/test/db.config";
 import { MockJwtAuthGuard, MockRolesGuard } from "../../src/test/mock.guard";
+import request from "superagent";
+import { catAge, catBreed, catName } from "../../src/test/constants";
 
 let app: INestApplication;
 let repository: Repository<Cat>;
 let connection:TestingModule;
+let catResponse:request.Response;
+let catId:number;
 
 beforeAll(async () => {
   connection = await Test.createTestingModule({
@@ -33,12 +37,27 @@ beforeAll(async () => {
   await app.init();
 });
 
+beforeEach(async()=>{
+  const createCatDto = {
+    name: "Whiskers",
+    age: 3,
+    breed: "Siamese",
+  };
+
+   catResponse = await supertest(app.getHttpServer())
+  .post("/cats")
+  .send(createCatDto)
+  .expect(201);
+  catId = catResponse.body.id
+})
+
+
 describe("Create cat", () => {
   it("should create a new cat", async () => {
     const createCatDto = {
-      name: "Whiskers",
-      age: 3,
-      breed: "Siamese",
+      name:catName,
+      age: catAge,
+      breed: catBreed,
     };
 
     const response = await supertest(app.getHttpServer())
@@ -55,32 +74,18 @@ describe("Create cat", () => {
 
 describe("Find cat by ID", () => {
   it("should return the specified cat", async () => {
-    // First, create a cat
-    const createCatDto = {
-      name: "Felix",
-      age: 4,
-      breed: "Maine Coon",
-    };
-
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-
-    const catId = createResponse.body.id;
-
-    // Then, try to find the created cat
+    // try to find the created cat
     const findResponse = await supertest(app.getHttpServer())
       .get(`/cats/${catId}`)
       .expect(200);
-
-    expect(findResponse.body.name).toEqual(createResponse.body.name);
-    expect(findResponse.body.age).toEqual(createResponse.body.age);
-    expect(findResponse.body.breed).toEqual(createResponse.body.breed);
+     
+    expect(findResponse.body.name).toEqual(catResponse.body.name);
+    expect(findResponse.body.age).toEqual(catResponse.body.age);
+    expect(findResponse.body.breed).toEqual(catResponse.body.breed);
   });
 
   it("should give error if the cat does not exist", async () => {
-    const catId = 100;
+    const catId = 1000;
     // try to find the created cat
     await supertest(app.getHttpServer()).get(`/cats/${catId}`).expect(404);
   });
@@ -98,19 +103,6 @@ describe("find all cats", () => {
 
 describe("deleteCatById", () => {
   it("should delete the specified cat", async () => {
-    // First, create a cat
-    const createCatDto = {
-      name: "Garfield",
-      age: 5,
-      breed: "Persian",
-    };
-
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-
-    const catId = createResponse.body.id;
     // Then, try to delete the created cat
     const deleteResponse = await supertest(app.getHttpServer())
       .delete(`/cats/${catId}`)
@@ -141,24 +133,11 @@ describe("deleteCatById", () => {
 describe("updateCatById", () => {
   it("should update the specified cat", async () => {
     // First, create a cat
-    const createCatDto = {
-      name: "Tom",
-      age: 3,
-      breed: "Siamese",
-    };
-
-    const createResponse = await supertest(app.getHttpServer())
-      .post("/cats")
-      .send(createCatDto)
-      .expect(201);
-
-    const catId = createResponse.body.id;
-
     // Then, update the created cat
     const updateCatDto = {
-      name: "Whiskers",
+      name: catName,
       age: 4,
-      breed: "Siamese",
+      breed: catBreed,
     };
 
     const updateResponse = await supertest(app.getHttpServer())
@@ -175,9 +154,9 @@ describe("updateCatById", () => {
   it("should give error if the cat does not exist", async () => {
     const catId = 1000;
     const updateCatDto = {
-      name: "Whiskers",
-      age: 4,
-      breed: "Siamese",
+      name: catName,
+      age: catAge,
+      breed: catBreed,
     };
 
     await supertest(app.getHttpServer())

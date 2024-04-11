@@ -12,7 +12,7 @@ import testDbConfig from "../../src/test/db.config";
 import { UserModule } from "../../src/users/users.module";
 import { CreateUserDto } from "../../src/users/dto/create-user.dto";
 import { LoginUserDto } from "../../src/users/dto/login-user.dto";
-import { testEmail, testPassword, testName } from "../../src/test/constants";
+import { testEmail, testPassword, testName, catName, catAge, catBreed } from "../../src/test/constants";
 
 let app: INestApplication;
 let repository: Repository<Cat>;
@@ -35,7 +35,7 @@ beforeAll(async () => {
   repository = connection.get("UserRepository");
   app = connection.createNestApplication();
   await app.init();
-});
+},10000);
 
 describe("Mark cat as favorite", () => {
 
@@ -63,9 +63,9 @@ describe("Mark cat as favorite", () => {
 
     const token = JSON.parse(responseLogin.text).data.accessToken;
     const createCatDto = {
-      name: "Whiskers",
-      age: 3,
-      breed: "Siamese",
+      name: catName,
+      age: catAge,
+      breed: catBreed,
     };
 
     const catResponse = await supertest(app.getHttpServer())

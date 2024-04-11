@@ -34,7 +34,7 @@ beforeAll(async () => {
   // Initialize the NestJS application
   app = connection.createNestApplication();
   await app.init();
-});
+},10000);
 
 describe("validateUser", () => {
   it("should register the user", async () => {

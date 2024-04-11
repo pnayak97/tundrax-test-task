@@ -20,17 +20,21 @@ Before you begin, ensure you have met the following requirements:
 
 3. **Run the app using Docker:**   
    ```bash
+    docker-compose build
     docker compose-up
    ```
 
 ## Test
 
 ```bash
+# build command 
+$ docker-compose -f ./docker-compose-test.yml build
+
 # unit tests
-$ npm run test
+$ docker-compose -f ./docker-compose-test.yml run unit_test
 
 # e2e tests
-$ npm run test:e2e
+$ docker-compose -f ./docker-compose-test.yml run e2e_test
 
 ```
 
